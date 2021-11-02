@@ -1,15 +1,15 @@
 from math import floor, sqrt, gcd
 import json
 from random import randrange
-from primeGenerator import generateNBitPrime as gen
+from method.primeGenerator import generateNBitPrime as gen
 
 
 class RSA:
     RSA_BIT_SIZE = 1024
     RSA_BLOCK_SIZE = RSA_BIT_SIZE//8 # How many byte can be grouped = RSA_N_bit/8
     RSA_PAD_INFO = 4 # ALLOCATE 4 byte for padding info (Max padding = 4-byte-value of byte)
-    public_key = {'n':None,'e':None}
-    private_key = {'n':None,'e':None}
+    public_key = {'n':1,'e':1}
+    private_key = {'n':1,'e':1}
 
     def __init__(self, pub_key={'n':None,'e':None}, priv_key={'n':None,'e':None}):
         self.public_key = pub_key
@@ -97,28 +97,39 @@ class RSA:
         pri_key = {'n':n,'d':d}
 
         if save:
-            json.dump(pub_key, open('rsa_key.pub','w'))
-            json.dump(pri_key, open('rsa_key.pri','w'))
+            json.dump(pub_key, open('./key/rsa_key.pub','w'))
+            json.dump(pri_key, open('./key/rsa_key.pri','w'))
 
         self.public_key = pub_key
         self.private_key = pri_key
     
-        return pub_key, pri_key
+        return n, e, d
     
-    def open_key(self, dir:str, pub_key:bool):
+    def open_key(self, dir:str):
         with open(dir) as f:
             data = f.read()
             key = json.loads(data)
-            if pub_key:
+            if dir.endswith('.pub'):
                 self.public_key = key
-            else:
+            elif dir.endswith('.pri'):
                 self.private_key = key
+            return key
+    
+    def set_n(self,n):
+        self.private_key['n'] = n
+        self.public_key['n'] = n
+
+    def set_e(self,e):
+        self.public_key['e'] = e
+
+    def set_d(self,d):
+        self.private_key['d'] = d
 
 
 if __name__ == '__main__':
     tools = RSA()
-    tools.open_key('rsa_key.pub',True)
-    tools.open_key('rsa_key.pri',False)
+    tools.open_key('rsa_key.pub')
+    tools.open_key('rsa_key.pri')
     # tools.generate_pair(save=True)
 
     string = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
@@ -126,10 +137,10 @@ if __name__ == '__main__':
     r1 = tools.encrypt(str_b)
     print(r1)
     res = ''.join('{:02x}'.format(byte) for byte in r1)
-    print(res)
+    # print(res)
     back = bytearray.fromhex(res)
-    print(back)
+    # print(back)
 
         
-    # r2 = tools.decrypt(bytearray(res.encode()))
-    # print(r2)
+    r2 = tools.decrypt(back)
+    print(r2.decode('utf-8'))
