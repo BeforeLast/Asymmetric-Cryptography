@@ -15,7 +15,7 @@ class RSA:
         self.public_key = pub_key
         self.private_key = priv_key
 
-    def encrypt(self, plaintext: bytes):
+    def encrypt(self, plaintext: bytearray):
         # Splitting and Adding Guard
         plain_blocks = [b'\x00' + plaintext[i:i+self.RSA_BLOCK_SIZE-1] for i in range(0,len(plaintext),self.RSA_BLOCK_SIZE-1)]
         
@@ -41,9 +41,9 @@ class RSA:
             ciphertext += block
         ciphertext += pad_length.to_bytes(length=self.RSA_PAD_INFO,byteorder='big',signed=False)
 
-        return ciphertext
+        return bytearray(ciphertext)
 
-    def decrypt(self,ciphertext: bytes):
+    def decrypt(self,ciphertext: bytearray):
         # Splitting ciphertext with padding info
         cipher_blocks, padding = ciphertext[:-self.RSA_PAD_INFO], int.from_bytes(ciphertext[-self.RSA_PAD_INFO:],byteorder='big',signed=False)
 
@@ -73,7 +73,7 @@ class RSA:
         for block in plain_blocks:
             plaintext += block
 
-        return plaintext
+        return bytearray(plaintext)
 
     def generate_pair(self,save=False):
         p = gen(self.RSA_BIT_SIZE//2)
@@ -97,13 +97,8 @@ class RSA:
         pri_key = {'n':n,'d':d}
 
         if save:
-            pb = open('rsa_key.pub','w')
-            pb.write(str(pub_key))
-            pb.close()
-
-            pr = open('rsa_key.pri','w')
-            pr.write(str(pri_key))
-            pr.close
+            json.dump(pub_key, open('rsa_key.pub','w'))
+            json.dump(pri_key, open('rsa_key.pri','w'))
 
         self.public_key = pub_key
         self.private_key = pri_key
@@ -122,11 +117,19 @@ class RSA:
 
 if __name__ == '__main__':
     tools = RSA()
-    tools.generate_pair(save=True)
+    tools.open_key('rsa_key.pub',True)
+    tools.open_key('rsa_key.pri',False)
+    # tools.generate_pair(save=True)
 
-    string = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur aliquam ex ac vestibulum ultrices. Phasellus aliquet, ligula eget aliquam pulvinar, nulla augue mollis neque, quis ornare massa metus sit amet metus. Mauris eget iaculis tortor. Proin feugiat lorem quis diam molestie suscipit. Curabitur nunc massa, condimentum non fermentum in, dapibus et velit. Vivamus odio erat, dapibus id lectus ac, ultricies auctor felis. Duis interdum rutrum volutpat. Pellentesque suscipit ante sed suscipit tincidunt. Nunc eu ex eu magna porta dictum sit amet et lorem. Aliquam aliquet risus ac felis tincidunt, id scelerisque enim maximus. Donec sit amet metus quis nulla eleifend ullamcorper hendrerit et enim. Sed ut ultrices leo. Sed volutpat neque mi, vitae finibus dolor consequat ac. Nullam sollicitudin tortor lectus, eu eleifend felis sodales ut. Mauris sed tincidunt lacus.'
-    str_b = string.encode('utf-8')
+    string = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
+    str_b = bytearray(string.encode())
     r1 = tools.encrypt(str_b)
     print(r1)
-    r2 = tools.decrypt(r1)
-    print(r2)
+    res = ''.join('{:02x}'.format(byte) for byte in r1)
+    print(res)
+    back = bytearray.fromhex(res)
+    print(back)
+
+        
+    # r2 = tools.decrypt(bytearray(res.encode()))
+    # print(r2)
