@@ -1,10 +1,16 @@
 import json
-from primeGenerator import generateNBitPrime as gen
+from method.primeGenerator import generateNBitPrime as gen
 from math import gcd, lcm, log
 import random
 class Paillier:
+    '''
+    Paillier Class
+    '''
+    # CONSTANTS
     PAIL_BIT_SIZE = 256
     PAIL_PAD_INFO = 4 # Reserve 4 byte for padding info
+
+    # KEYS
     public_key = {'g':1,'n':1}
     private_key = {'g':1,'n':1,'lmd':1,'mu':1}
 

@@ -17,7 +17,7 @@ class RSA:
     public_key = {'n':1,'e':1}
     private_key = {'n':1,'e':1}
 
-    def __init__(self, pub_key={'n':None,'e':None}, priv_key={'n':None,'e':None}):
+    def __init__(self, pub_key={'n':1,'e':1}, priv_key={'n':1,'e':1}):
         self.public_key = pub_key
         self.private_key = priv_key
 
