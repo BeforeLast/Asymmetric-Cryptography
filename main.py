@@ -60,13 +60,96 @@ def RSA_GUI():
     pass
 
 def ElGamal_GUI():
+    layout = [
+        [sg.Text('Text :'),sg.InputText(key='text')],
+        [sg.Text('g = '),sg.InputText(key='g',default_text='2')],
+        [sg.Text('x = '),sg.InputText(key='x',default_text='2')],
+        [sg.Text('p = '),sg.InputText(key='p',default_text='257')],
+        [sg.Button('Generate Key'),sg.Checkbox('Save to file',key='save')],
+        [sg.Button('Import Public Key'),sg.InputText(default_text='./key/eg_key.pub',disabled=True,key='imp_pub'),sg.FileBrowse(initial_folder='./key/', file_types=(("Public Key Files","*.pub"),))],
+        [sg.Button('Import Private Key'),sg.InputText(default_text='./key/eg_key.pri',disabled=True,key='imp_pri'),sg.FileBrowse(initial_folder='./key/', file_types=(("Private Key Files","*.pri"),))],
+        [sg.Button('Encrypt'),sg.Button('Decrypt')],
+        [sg.Multiline(size=(100,60),disabled=True,key='res')]
+    ]
+    window = sg.Window(title=('Elgamal'), layout=layout, size=(700,800), modal=True)
+    while True:
+        event, values = window.read()
+        if event == sg.WIN_CLOSED or event == 'Cancel':
+            break
+        res = ''
+        tools = eg.Elgamal(int(values['g']), int(values['x']), int(values['p']))
+        if event == 'Generate Key':
+            if values['save']:
+                p, g, x = tools.generate_pair(True)
+            else:
+                p, g, x = tools.generate_pair(False)
+            window.Element(key='p').Update(p)
+            window.Element(key='g').Update(g)
+            window.Element(key='x').Update(x)
+        elif event == 'Import Public Key':
+            key = tools.open_key(values['imp_pub'])
+            window.Element(key='p').Update(key['p'])
+            window.Element(key='g').Update(key['g'])
+        elif event == 'Import Private Key':
+            key = tools.open_key(values['imp_pri'])
+            window.Element(key='p').Update(key['p'])
+            window.Element(key='x').Update(key['x'])
+        elif event == 'Encrypt' and len(values['text'])>0:
+            res = tools.encrypt_text(values['text'])
+        elif event == 'Decrypt' and len(values['text'])>0:
+            try:
+                res = tools.decrypt_text(values['text'])
+            except:
+                res = 'Wrong ciphertext code'
+        window.Element(key='res').Update(res)
     pass
 
 def Paillier_GUI():
     pass
 
 def ECC_GUI():
-    pass
+    layout = [
+        [sg.Text('Text :'),sg.InputText(key='text')],
+        [sg.Text('y**2 = x**3 + '), sg.InputText(key='a',default_text='1'), sg.Text('x + '), sg.InputText(key='b', default_text='1')],
+        [sg.Text('Base Point = '),sg.InputText(key='g',default_text='0')],
+        [sg.Text('x = '),sg.InputText(key='x',default_text='1')],
+        [sg.Text('p = '),sg.InputText(key='p',default_text='32749')],
+        # [sg.Button('Generate Key'),sg.Checkbox('Save to file',key='save')],
+        [sg.Button('Import Public Key'),sg.InputText(default_text='./key/ecc_key.pub',disabled=True,key='imp_pub'),sg.FileBrowse(initial_folder='./key/', file_types=(("Public Key Files","*.pub"),))],
+        [sg.Button('Import Private Key'),sg.InputText(default_text='./key/ecc_key.pri',disabled=True,key='imp_pri'),sg.FileBrowse(initial_folder='./key/', file_types=(("Private Key Files","*.pri"),))],
+        [sg.Button('Encrypt'),sg.Button('Decrypt')],
+        [sg.Multiline(size=(100,60),disabled=True,key='res')]
+    ]
+    window = sg.Window(title=('ECC'), layout=layout, size=(700,800), modal=True)
+    while True:
+        event, values = window.read()
+        if event == sg.WIN_CLOSED or event == 'Cancel':
+            break
+        
+        tools = ecc.ECC(int(values['a']),int(values['b']), values['g'], int(values['x']), int(values['p']))
+        res = tools.isViolate()
+        
+        if event == 'Import Public Key':
+            key = tools.open_key(values['imp_pub'])
+            window.Element(key='p').Update(key['p'])
+            window.Element(key='a').Update(key['a'])
+            window.Element(key='b').Update(key['b'])
+            window.Element(key='g').Update(str(key['g'][0]) + " " + str(key['g'][1]))
+        elif event == 'Import Private Key':
+            key = tools.open_key(values['imp_pri'])
+            window.Element(key='p').Update(key['p'])
+            window.Element(key='x').Update(key['x'])
+        elif res != '':
+            res = res
+        elif event == 'Encrypt' and len(values['text'])>0:
+            res = tools.encrypt_text(values['text'])
+        elif event == 'Decrypt' and len(values['text'])>0:
+            res = tools.decrypt_text(values['text'])
+            try:
+                res = tools.decrypt_text(values['text'])
+            except:
+                res = 'Wrong ciphertext code'
+        window.Element(key='res').Update(res)
 
 def main():
     TOOLS = ['RSA','ElGamal','Paillier','ECC']

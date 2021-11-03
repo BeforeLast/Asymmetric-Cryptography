@@ -1,4 +1,8 @@
 def euler_totient(x):
+    '''
+    Banyak bilangan positif kurang dari sama dengan x yang relatif prima dengan x
+    Tidak digunakan karena time complexity yang besar yakni O(sqrt(x))
+    '''
     idx = 2
     x_cpy = x
     result = x
@@ -13,7 +17,9 @@ def euler_totient(x):
     return result
 
 def fast_pow(a, b, mod):
-    b %= euler_totient(mod)
+    '''
+    a pangkat b dalam modulo mod, menggunakan binary exponentiation
+    '''
     result = 1
     while(b>0):
         if(b%2):
@@ -23,7 +29,33 @@ def fast_pow(a, b, mod):
     return result
 
 def inv_mod(x, mod):
-    return fast_pow(x, euler_totient(mod)-1, mod)
+    '''
+    Inverse x dalam modulo mod
+    mod diasumsikan prima, jika tidak mod-2 -> euler_totient(mod)-1
+    '''
+    return fast_pow(x, mod-2, mod)
+
+def str_to_int(nByte, string):
+    '''
+    Mengubah string menjadi int, byte demi byte
+    '''
+    res = 0
+    for i in range(nByte):
+        res *= 256
+        if i<len(string):
+            res += ord(string[i])
+    return res
+            
+
+def int_to_str(nByte, x):
+    '''
+    Mengubah int menjadi string, byte demi byte
+    '''
+    res = ""
+    for i in range(nByte):
+        res += chr(x % 256)
+        x //= 256
+    return res[::-1]
 
 '''
 def test():
