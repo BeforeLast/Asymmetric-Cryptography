@@ -5,7 +5,6 @@ import method.rsa as rsa
 import method.elgamal as eg
 import method.paillier as pl
 import method.ecc as ecc
-import codecs
 
 # GUI
 import PySimpleGUI as sg
