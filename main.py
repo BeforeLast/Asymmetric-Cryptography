@@ -59,7 +59,6 @@ def RSA_GUI():
             except:
                 res = 'Wrong ciphertext code'
         window.Element(key='res').Update(res)
-    pass
 
 def ElGamal_GUI():
     pass
