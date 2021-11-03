@@ -11,7 +11,7 @@ class RSA:
     public_key = {'n':1,'e':1}
     private_key = {'n':1,'e':1}
 
-    def __init__(self, pub_key={'n':None,'e':None}, priv_key={'n':None,'e':None}):
+    def __init__(self, pub_key={'n':1,'e':1}, priv_key={'n':1,'e':1}):
         self.public_key = pub_key
         self.private_key = priv_key
 
@@ -128,9 +128,9 @@ class RSA:
 
 if __name__ == '__main__':
     tools = RSA()
-    tools.open_key('rsa_key.pub')
-    tools.open_key('rsa_key.pri')
-    # tools.generate_pair(save=True)
+    # tools.open_key('rsa_key.pub')
+    # tools.open_key('rsa_key.pri')
+    tools.generate_pair(save=False)
 
     string = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
     str_b = bytearray(string.encode())
