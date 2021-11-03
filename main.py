@@ -114,7 +114,7 @@ def ECC_GUI():
         [sg.Text('Base Point = '),sg.InputText(key='g',default_text='0')],
         [sg.Text('x = '),sg.InputText(key='x',default_text='1')],
         [sg.Text('p = '),sg.InputText(key='p',default_text='32749')],
-        # [sg.Button('Generate Key'),sg.Checkbox('Save to file',key='save')],
+        [sg.Button('Generate Key'),sg.Checkbox('Save to file',key='save')],
         [sg.Button('Import Public Key'),sg.InputText(default_text='./key/ecc_key.pub',disabled=True,key='imp_pub'),sg.FileBrowse(initial_folder='./key/', file_types=(("Public Key Files","*.pub"),))],
         [sg.Button('Import Private Key'),sg.InputText(default_text='./key/ecc_key.pri',disabled=True,key='imp_pri'),sg.FileBrowse(initial_folder='./key/', file_types=(("Private Key Files","*.pri"),))],
         [sg.Button('Encrypt'),sg.Button('Decrypt')],
@@ -129,7 +129,17 @@ def ECC_GUI():
         tools = ecc.ECC(int(values['a']),int(values['b']), values['g'], int(values['x']), int(values['p']))
         res = tools.isViolate()
         
-        if event == 'Import Public Key':
+        if event == 'Generate Key':
+            if values['save']:
+                p, a, b, g, x = tools.generate_pair(True)
+            else:
+                p, a, b, g, x = tools.generate_pair(False)
+            window.Element(key='p').Update(p)
+            window.Element(key='a').Update(a)
+            window.Element(key='b').Update(b)
+            window.Element(key='g').Update(str(g[0]) + " " + str(g[1]))
+            window.Element(key='x').Update(x)
+        elif event == 'Import Public Key':
             key = tools.open_key(values['imp_pub'])
             window.Element(key='p').Update(key['p'])
             window.Element(key='a').Update(key['a'])

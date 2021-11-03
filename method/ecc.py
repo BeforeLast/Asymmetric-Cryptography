@@ -2,6 +2,8 @@ from method.utility import *
 import random
 import json
 import copy
+from method.primeGenerator import generateNBitPrime as gen
+
 
 class ECC:
     def __init__(self, a, b, g, x, p = 32749):
@@ -236,6 +238,36 @@ class ECC:
             y = self.sqrt_mod[(x*x*x + self.a*x + self.b) % self.p]
         return [x, y]
 
+    def generate_pair(self,save=False):
+        '''
+        Membangkitkan prima 1024 bit dengan fungsi dari primeGenerator.py
+        '''
+        p = gen(64)
+        
+        g = [random.randrange(0, p-1), random.randrange(0, p-1)]
+        x = random.randrange(2, p-2)
+        y = self.mul_point(x, g)
+
+        a = random.randrange(0, p-1)
+        b = ((g[1]*g[1] - g[0]*g[0]*g[0] - a*g[0]) % p + p) % p
+
+        # Creating Key Dictionary
+        pub_key = {'p':p,'a': a, 'b': b, 'g':g, 'y': y}
+        pri_key = {'p':p,'x':x}
+
+        if save:
+            json.dump(pub_key, open('./key/ecc_key.pub','w'))
+            json.dump(pri_key, open('./key/ecc_key.pri','w'))
+
+        self.p = p
+        self.g = g
+        self.a = a
+        self.b = b
+        self.x = x
+        self.y = y
+    
+        return p, a, b, g, x
+    
     def open_key(self, dir:str):
         with open(dir) as f:
             data = f.read()
