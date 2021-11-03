@@ -1,5 +1,5 @@
 import json
-from method.primeGenerator import generateNBitPrime as gen
+from primeGenerator import generateNBitPrime as gen
 from math import gcd, lcm, log
 import random
 class Paillier:
@@ -16,6 +16,13 @@ class Paillier:
         return 1 if not num else int(log(num,256)) + 1
 
     def encrypt(self,plaintext:bytearray):
+        '''
+        Paillier Algorithm to encrypt plaintext
+        input:
+         plaintext (bytearray)
+        output:
+         ciphertext (bytearray)
+        '''
         block_length = self.get_int_byte_length(self.public_key['n']**2)
         group_length = block_length//2
         
@@ -45,6 +52,13 @@ class Paillier:
         return ciphertext
 
     def decrypt(self,ciphertext:bytearray):
+        '''
+        Paillier Algorithm to decrypt plaintext
+        input:
+         ciphertext (bytearray)
+        output:
+         plaintext (bytearray)
+        '''
         block_length = self.get_int_byte_length(self.private_key['n']**2)
         group_length = block_length//2
         # Splitting ciphertext with padding info
@@ -75,18 +89,49 @@ class Paillier:
         return bytearray(plaintext)
 
     def encrypt_block(self,plain_block):
+        '''
+        Paillier Algorithm to encrypt block (in integer)
+        input:
+         plain_block (int)
+        output:
+         cipher_block (int)
+        '''
         r = random.randrange(0,self.public_key['n']-1)
         while gcd(r,self.public_key['n']) != 1:
             r = random.randrange(0,self.public_key['n']-1)
         return (pow(self.public_key['g'],plain_block,self.public_key['n']**2) * pow(r,self.public_key['n'],self.public_key['n']**2)) % self.public_key['n']**2
 
     def decrypt_block(self,cipher_block):
+        '''
+        Paillier Algorithm to decrypt block (in integer)
+        input:
+         cipher_block (int)
+        output:
+         plain_block (int)
+        '''
         return (self.l(pow(cipher_block,self.private_key['lmd'], self.private_key['n']**2), self.private_key['n'])*self.private_key['mu']) % self.private_key['n']
 
     def l(self,x,n):
+        '''
+        L(X) function for Paillier algorithm
+        input:
+         x (int)
+         n (int)
+        output:
+         L(X) (int)
+        '''
         return (x-1)//n
 
     def generate_pair(self,save=False):
+        '''
+        Generate Paillier key pair with save option
+        if safe is True, write Paillier key pair to
+        folder ./key/
+        input:
+         save (boolean)
+        output:
+         dictionary of {g,n}, dictionary of {g,n,lambda,mu}
+        '''
         p,q = 0,0
         while True:    
             p = gen(self.PAIL_BIT_SIZE)
@@ -115,6 +160,13 @@ class Paillier:
         return pub_key,pri_key
     
     def open_key(self, dir:str):
+        '''
+        Importing Paillier key from directory
+        input:
+         save (boolean)
+        output:
+         dictionary of {g,n} or dictionary of {g,n,lambda,mu}
+        '''
         with open(dir) as f:
             data = f.read()
             key = json.loads(data)
