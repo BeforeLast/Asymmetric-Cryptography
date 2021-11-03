@@ -1,5 +1,5 @@
 import json
-from primeGenerator import generateNBitPrime as gen
+from method.primeGenerator import generateNBitPrime as gen
 from math import gcd, lcm, log
 import random
 class Paillier:
@@ -106,8 +106,8 @@ class Paillier:
         pri_key = {"lmd":lmd, "mu":mu, "g":g, "n":n}
 
         if save:
-            json.dump(pub_key, open('./key/rsa_key.pub','w'))
-            json.dump(pri_key, open('./key/rsa_key.pri','w'))
+            json.dump(pub_key, open('./key/paillier_key.pub','w'))
+            json.dump(pri_key, open('./key/paillier_key.pri','w'))
         
         self.public_key = pub_key
         self.private_key = pri_key
