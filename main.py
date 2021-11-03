@@ -1,9 +1,11 @@
 # Alogirthm
+import base64
 from PySimpleGUI.PySimpleGUI import Save
 import method.rsa as rsa
 import method.elgamal as eg
 import method.paillier as pl
 import method.ecc as ecc
+import codecs
 
 # GUI
 import PySimpleGUI as sg
@@ -11,9 +13,9 @@ import PySimpleGUI as sg
 def RSA_GUI():
     layout = [
         [sg.Text('Text :'),sg.InputText(key='text')],
-        [sg.Text('n = '),sg.InputText(key='n',default_text='0')],
-        [sg.Text('e = '),sg.InputText(key='e',default_text='0')],
-        [sg.Text('d = '),sg.InputText(key='d',default_text='0')],
+        [sg.Text('n = '),sg.InputText(key='n',default_text='1')],
+        [sg.Text('e = '),sg.InputText(key='e',default_text='1')],
+        [sg.Text('d = '),sg.InputText(key='d',default_text='1')],
         [sg.Button('Generate Key'),sg.Checkbox('Save to file',key='save')],
         [sg.Button('Import Public Key'),sg.InputText(default_text='./key/rsa_key.pub',disabled=True,key='imp_pub'),sg.FileBrowse(initial_folder='./key/', file_types=(("Public Key Files","*.pub"),))],
         [sg.Button('Import Private Key'),sg.InputText(default_text='./key/rsa_key.pri',disabled=True,key='imp_pri'),sg.FileBrowse(initial_folder='./key/', file_types=(("Private Key Files","*.pri"),))],
@@ -48,10 +50,10 @@ def RSA_GUI():
         elif event == 'Encrypt' and len(values['text'])>0:
             transformed_text = bytearray(values['text'].encode())
             ciphertext = tools.encrypt(transformed_text)
-            res = ''.join('{:02x}'.format(byte) for byte in ciphertext)
+            res = base64.b64encode(ciphertext).decode('utf-8')
         elif event == 'Decrypt' and len(values['text'])>0:
             try:
-                transformed_text = bytearray.fromhex(values['text'])
+                transformed_text = bytearray(base64.b64decode(values['text']))
                 plaintext = tools.decrypt(transformed_text)
                 res = plaintext.decode('utf-8')
             except:
@@ -63,7 +65,58 @@ def ElGamal_GUI():
     pass
 
 def Paillier_GUI():
-    pass
+    layout = [
+        [sg.Text('Text :'),sg.InputText(key='text')],
+        [sg.Text('g = '),sg.InputText(key='g',default_text='1')],
+        [sg.Text('n = '),sg.InputText(key='n',default_text='1')],
+        [sg.Text('lambda = '),sg.InputText(key='lmd',default_text='1')],
+        [sg.Text('mu = '),sg.InputText(key='mu',default_text='1')],
+        [sg.Button('Generate Key'),sg.Checkbox('Save to file',key='save')],
+        [sg.Button('Import Public Key'),sg.InputText(default_text='./key/paillier_key.pub',disabled=True,key='imp_pub'),sg.FileBrowse(initial_folder='./key/', file_types=(("Public Key Files","*.pub"),))],
+        [sg.Button('Import Private Key'),sg.InputText(default_text='./key/paillier_key.pri',disabled=True,key='imp_pri'),sg.FileBrowse(initial_folder='./key/', file_types=(("Private Key Files","*.pri"),))],
+        [sg.Button('Encrypt'),sg.Button('Decrypt')],
+        [sg.Multiline(size=(100,60),disabled=True,key='res')]
+    ]
+    window = sg.Window(title=('Paillier'), layout=layout, size=(700,800), modal=True)
+    while True:
+        event, values = window.read()
+        if event == sg.WIN_CLOSED or event == 'Cancel':
+            break
+        res = ''
+        pub_key = {'g':int(values['g']),'n':int(values['n'])}
+        pri_key = {'g':int(values['g']),'n':int(values['n']),'lmd':int(values['lmd']),'mu':int(values['mu'])}
+        tools = pl.Paillier(pub_key,pri_key)
+        if event == 'Generate Key':
+            if values['save']:
+                pub, pri = tools.generate_pair(True)
+            else:
+                pub, pri = tools.generate_pair(False)
+            window.Element(key='g').Update(pub['g'])
+            window.Element(key='n').Update(pub['n'])
+            window.Element(key='lmd').Update(pri['lmd'])
+            window.Element(key='mu').Update(pri['mu'])
+        elif event == 'Import Public Key':
+            key = tools.open_key(values['imp_pub'])
+            window.Element(key='g').Update(key['g'])
+            window.Element(key='n').Update(key['n'])
+        elif event == 'Import Private Key':
+            key = tools.open_key(values['imp_pri'])
+            window.Element(key='g').Update(key['g'])
+            window.Element(key='n').Update(key['n'])
+            window.Element(key='lmd').Update(key['lmd'])
+            window.Element(key='mu').Update(key['mu'])
+        elif event == 'Encrypt' and len(values['text'])>0:
+            transformed_text = bytearray(values['text'].encode())
+            ciphertext = tools.encrypt(transformed_text)
+            res = base64.b64encode(ciphertext).decode('utf-8')
+        elif event == 'Decrypt' and len(values['text'])>0:
+            try:
+                transformed_text = bytearray(base64.b64decode(values['text']))
+                plaintext = tools.decrypt(transformed_text)
+                res = plaintext.decode('utf-8')
+            except:
+                res = 'Wrong ciphertext code'
+        window.Element(key='res').Update(res)
 
 def ECC_GUI():
     pass
